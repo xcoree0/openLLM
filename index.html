@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OpenLLM — NVIDIA NIM Konsolu</title>
+<meta name="description" content="Kendi NVIDIA NIM API anahtarınla metin, görsel, video ve ajan modellerini tek panelden çalıştır. Anahtarın yalnızca tarayıcında kalır.">
+<meta name="theme-color" content="#0B0F14">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ INLINE ICON SPRITE ============ -->
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="i-key" viewBox="0 0 24 24"><path d="M14.5 2a6.5 6.5 0 0 0-6.16 8.58L2 17v3.5A1.5 1.5 0 0 0 3.5 22H7v-2h2v-2h2l2.42-2.42A6.5 6.5 0 1 0 14.5 2Zm2 4.5a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5Z"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M3 11.5 21 3l-8.5 18-2.4-7.1L3 11.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path d="m4 17 5-5 3.5 3.5L17 11l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 10 6-3v10l-6-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-agent" viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8V4m-3-1h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9.5" cy="13.5" r="1.3" fill="currentColor"/><circle cx="14.5" cy="13.5" r="1.3" fill="currentColor"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3.9a7.6 7.6 0 0 0-2.6-1.5L14 2h-4l-.5 2.4A7.6 7.6 0 0 0 7 6l-2.3-.9-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4L7 18a7.6 7.6 0 0 0 2.5 1.5L10 22h4l.5-2.5A7.6 7.6 0 0 0 17 18l2.3.9 2-3.4-2-1.6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-dice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><circle cx="16" cy="8" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="8" cy="16" r="1.4" fill="currentColor"/><circle cx="16" cy="16" r="1.4" fill="currentColor"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 6 6L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 21V9m0 0 5 5m-5-5-5 5M4 4h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M9.5 14.5 14.5 9.5m-5.8 5.8-2.1 2.1a3.5 3.5 0 1 1-4.9-4.9l3-3a3.5 3.5 0 0 1 4.9 0m2.6-2.6 2.1-2.1a3.5 3.5 0 1 1 4.9 4.9l-3 3a3.5 3.5 0 0 1-4.9 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 22 20H2L12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/></symbol>
+    <symbol id="i-vector" viewBox="0 0 24 24"><path d="M4 12h16M4 6h10M4 18h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m9 8-5 4 5 4M15 8l5 4-5 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-node" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.2" fill="currentColor"/><circle cx="18" cy="6" r="2.2" fill="currentColor"/><circle cx="12" cy="18" r="2.2" fill="currentColor"/><path d="M8 7l7-.5M8 8l3 8m9-9-9.5 8.5" stroke="currentColor" stroke-width="1.4"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.2A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a15.6 15.6 0 0 1-3.4 4.3M6.6 6.6C4 8.3 2 12 2 12s3.5 7 10 7c1.4 0 2.7-.3 3.9-.8M9.9 9.9a3 3 0 0 0 4.2 4.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.6-5.7L20 8M4 12a8 8 0 0 0 13.6 5.7L20 16M20 8v-4m0 4h-4M4 16v4m0-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="18" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="7" r="1" fill="currentColor"/><circle cx="7" cy="17" r="1" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<div id="app">
+
+  <!-- ============ GATE / ONBOARDING ============ -->
+  <section id="view-gate" class="view view-gate">
+    <div class="gate-card">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="icon"><use href="#i-node"/></svg>
+        </span>
+        <div class="brand-text">
+          <h1>OpenLLM</h1>
+          <p class="brand-tag">kendi çıkarım filonu yönet</p>
+        </div>
+      </div>
+
+      <p class="gate-lead">NVIDIA NIM API anahtarını gir; erişimin olan tüm modeller (metin, görüntü, video, gömme) otomatik olarak listelensin.</p>
+
+      <form id="gate-form" class="gate-form" autocomplete="off">
+        <label for="gate-key" class="field-label">
+          <svg class="icon icon-sm"><use href="#i-key"/></svg>
+          API anahtarı
+        </label>
+        <div class="key-input-row">
+          <input id="gate-key" name="apiKey" type="password" placeholder="nvapi-••••••••••••••••••••••••••••••" spellcheck="false" required>
+          <button type="button" id="gate-toggle-visibility" class="icon-btn" title="Anahtarı göster/gizle" aria-label="Anahtarı göster/gizle">
+            <svg class="icon"><use href="#i-eye"/></svg>
+          </button>
+        </div>
+
+        <div class="gate-row-split">
+          <label class="chip-toggle">
+            <input type="radio" name="remember" value="session" checked>
+            <span>Yalnızca bu sekmede tut</span>
+          </label>
+          <label class="chip-toggle">
+            <input type="radio" name="remember" value="local">
+            <span>Bu tarayıcıda hatırla</span>
+          </label>
+        </div>
+
+        <details id="gate-advanced" class="gate-advanced">
+          <summary>Bağlantı yöntemi <span class="muted">— CORS notu</span></summary>
+          <p class="fine-print">
+            NVIDIA'nın API'si tarayıcıdan doğrudan istekleri (CORS) desteklemiyor. Bu yüzden ya küçük, ücretsiz bir
+            <strong>vekil (proxy)</strong> devreye alman gerekir, ya da doğrudan bağlantıyı deneyip tarayıcı engelini görürsün.
+            Ayrıntı: <code>proxy/worker.js</code> ve README.
+          </p>
+          <div class="conn-mode">
+            <label class="chip-toggle">
+              <input type="radio" name="connMode" value="direct" checked>
+              <span>Doğrudan bağlan (dener, çoğu tarayıcıda engellenir)</span>
+            </label>
+            <label class="chip-toggle">
+              <input type="radio" name="connMode" value="proxy">
+              <span>Kendi vekil sunucumu kullan</span>
+            </label>
+          </div>
+          <input id="gate-proxy-url" type="url" placeholder="https://senin-worker-adresin.workers.dev" hidden>
+        </details>
+
+        <button type="submit" id="gate-submit" class="btn-primary btn-block">
+          <span class="btn-label">Bağlan</span>
+          <svg class="icon"><use href="#i-chevron"/></svg>
+        </button>
+
+        <p id="gate-status" class="gate-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="gate-footer">
+        <a href="https://build.nvidia.com" target="_blank" rel="noopener">Ücretsiz API anahtarı al ↗</a>
+        <span class="dot">·</span>
+        <button type="button" id="gate-how" class="link-btn">Bu nasıl çalışır?</button>
+      </div>
+      <p class="privacy-note">Anahtarın hiçbir yere gönderilmez; yalnızca senin tarayıcında (ve seçtiysen kendi vekil sunucunda) kalır. OpenLLM'in kendi sunucusu yoktur.</p>
+    </div>
+  </section>
+
+  <!-- ============ MAIN APP ============ -->
+  <section id="view-app" class="view view-app" hidden>
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button id="btn-sidebar-toggle" class="icon-btn sidebar-toggle-btn" title="Modeller" aria-label="Model listesini aç">
+          <svg class="icon"><use href="#i-server"/></svg>
+        </button>
+        <span class="brand-mark brand-mark-sm" aria-hidden="true"><svg class="icon"><use href="#i-node"/></svg></span>
+        <span class="brand-name">OpenLLM</span>
+      </div>
+
+      <nav class="mode-tabs" role="tablist" aria-label="Mod seçimi">
+        <button class="mode-tab is-active" data-mode="chat" role="tab" aria-selected="true">
+          <svg class="icon"><use href="#i-chat"/></svg><span>Metin</span>
+        </button>
+        <button class="mode-tab" data-mode="image" role="tab" aria-selected="false">
+          <svg class="icon"><use href="#i-image"/></svg><span>Görsel</span>
+        </button>
+        <button class="mode-tab" data-mode="video" role="tab" aria-selected="false">
+          <svg class="icon"><use href="#i-video"/></svg><span>Video</span>
+        </button>
+        <button class="mode-tab" data-mode="agent" role="tab" aria-selected="false">
+          <svg class="icon"><use href="#i-agent"/></svg><span>Ajan</span>
+        </button>
+      </nav>
+
+      <div class="topbar-right">
+        <svg id="signal-trace" viewBox="0 0 160 28" class="signal-trace" preserveAspectRatio="none" aria-hidden="true">
+          <polyline id="signal-trace-line" points="0,14 160,14" />
+        </svg>
+        <span id="topbar-status" class="topbar-status">hazır</span>
+        <button id="btn-settings" class="icon-btn" title="Ayarlar" aria-label="Ayarlar">
+          <svg class="icon"><use href="#i-settings"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="console">
+      <button id="sidebar-scrim" class="sidebar-scrim" hidden aria-hidden="true"></button>
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-search">
+          <svg class="icon icon-sm"><use href="#i-search"/></svg>
+          <input id="model-search" type="search" placeholder="Model ara…" aria-label="Model ara">
+          <button id="model-refresh" class="icon-btn icon-btn-ghost" title="Model listesini yenile" aria-label="Yenile">
+            <svg class="icon icon-sm"><use href="#i-refresh"/></svg>
+          </button>
+        </div>
+        <div id="model-groups" class="model-groups">
+          <div class="sidebar-loading" id="sidebar-loading">
+            <div class="spinner"></div>
+            <span>Modeller getiriliyor…</span>
+          </div>
+        </div>
+        <div class="sidebar-footer">
+          <div class="key-pill">
+            <svg class="icon icon-sm"><use href="#i-key"/></svg>
+            <span id="key-pill-label">nvapi-••••</span>
+          </div>
+          <button id="btn-change-key" class="link-btn">değiştir</button>
+        </div>
+      </aside>
+
+      <main class="workspace">
+
+        <!-- ---------- CHAT ---------- -->
+        <section id="mode-chat" class="mode-panel is-active" data-panel="chat">
+          <div class="chat-shell">
+            <aside class="thread-rail" id="thread-rail">
+              <button id="btn-new-thread" class="btn-secondary btn-block">
+                <svg class="icon icon-sm"><use href="#i-plus"/></svg> Yeni sohbet
+              </button>
+              <div id="thread-list" class="thread-list"></div>
+            </aside>
+
+            <div class="chat-main">
+              <div class="chat-toolbar">
+                <button id="chat-model-chip" class="model-chip" type="button">
+                  <span class="dot dot-chat"></span>
+                  <span id="chat-model-label">model seç</span>
+                  <svg class="icon icon-sm"><use href="#i-chevron"/></svg>
+                </button>
+                <button id="chat-params-btn" class="icon-btn" title="Parametreler" aria-label="Parametreler">
+                  <svg class="icon"><use href="#i-settings"/></svg>
+                </button>
+                <div id="chat-params-pop" class="popover" hidden>
+                  <label class="field-label">Sistem istemi</label>
+                  <textarea id="chat-system" rows="3" placeholder="Örn: Kısa ve teknik cevaplar ver."></textarea>
+                  <div class="param-row">
+                    <label>Sıcaklık (temperature) <output id="chat-temp-out">0.7</output></label>
+                    <input id="chat-temp" type="range" min="0" max="1.5" step="0.05" value="0.7">
+                  </div>
+                  <div class="param-row">
+                    <label>Maks. jeton <output id="chat-maxtok-out">1024</output></label>
+                    <input id="chat-maxtok" type="range" min="64" max="4096" step="64" value="1024">
+                  </div>
+                </div>
+              </div>
+
+              <div id="chat-messages" class="chat-messages">
+                <div class="empty-state" id="chat-empty">
+                  <svg class="icon icon-lg"><use href="#i-chat"/></svg>
+                  <p>Soldan bir metin modeli seç ve yazmaya başla.</p>
+                </div>
+              </div>
+
+              <form id="chat-form" class="chat-input-row">
+                <div id="chat-attachments" class="chat-attachments" hidden></div>
+                <button type="button" id="chat-attach-btn" class="icon-btn" title="Görsel ekle (görsel-dilli modeller)" aria-label="Görsel ekle" hidden>
+                  <svg class="icon"><use href="#i-upload"/></svg>
+                </button>
+                <input id="chat-file-input" type="file" accept="image/*" hidden multiple>
+                <textarea id="chat-input" rows="1" placeholder="Bir mesaj yaz… (Enter gönderir, Shift+Enter yeni satır)"></textarea>
+                <button type="submit" id="chat-send" class="icon-btn icon-btn-accent" title="Gönder" aria-label="Gönder">
+                  <svg class="icon"><use href="#i-send"/></svg>
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- IMAGE ---------- -->
+        <section id="mode-image" class="mode-panel" data-panel="image" hidden>
+          <div class="studio-shell">
+            <aside class="studio-rail">
+              <h3 class="rail-title">Görsel modelleri</h3>
+              <div id="image-model-list" class="pick-list"></div>
+              <button id="image-add-custom" class="btn-ghost btn-block btn-sm">
+                <svg class="icon icon-sm"><use href="#i-plus"/></svg> Özel model ekle
+              </button>
+            </aside>
+
+            <div class="studio-main">
+              <div class="studio-form">
+                <label class="field-label">İstem (prompt)</label>
+                <textarea id="image-prompt" rows="3" placeholder="Örn: Sisli bir dağ zirvesinde duran bir deniz feneri, sinematik ışık, 35mm film"></textarea>
+                <label class="field-label">Negatif istem <span class="muted">(opsiyonel)</span></label>
+                <input id="image-negative" type="text" placeholder="bulanık, düşük çözünürlük, filigran">
+
+                <div class="param-grid">
+                  <div class="param-row">
+                    <label>Adım (steps) <output id="image-steps-out">30</output></label>
+                    <input id="image-steps" type="range" min="1" max="60" step="1" value="30">
+                  </div>
+                  <div class="param-row">
+                    <label>CFG ölçeği <output id="image-cfg-out">7</output></label>
+                    <input id="image-cfg" type="range" min="0" max="20" step="0.5" value="7">
+                  </div>
+                  <div class="param-row param-row-inline">
+                    <label>Tohum (seed)</label>
+                    <input id="image-seed" type="number" value="0" min="0">
+                    <button type="button" id="image-seed-random" class="icon-btn" title="Rastgele tohum" aria-label="Rastgele tohum">
+                      <svg class="icon icon-sm"><use href="#i-dice"/></svg>
+                    </button>
+                  </div>
+                  <div class="param-row">
+                    <label>Boyut</label>
+                    <select id="image-size">
+                      <option value="1024x1024">1024 × 1024</option>
+                      <option value="1024x768">1024 × 768</option>
+                      <option value="768x1024">768 × 1024</option>
+                      <option value="1344x768">1344 × 768 (geniş)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <details class="raw-override">
+                  <summary>Gelişmiş: ham istek gövdesi</summary>
+                  <p class="fine-print">Bu model için alanları elle düzenlemen gerekirse JSON'u burada geçersiz kılabilirsin. Boş bırakılırsa yukarıdaki alanlar kullanılır.</p>
+                  <textarea id="image-raw-json" rows="5" placeholder='{"text_prompts":[{"text":"..."}], "steps": 30}' spellcheck="false"></textarea>
+                </details>
+
+                <button id="image-generate" class="btn-primary btn-block">
+                  <svg class="icon"><use href="#i-image"/></svg> Görsel üret
+                </button>
+                <p id="image-status" class="gate-status" role="status" aria-live="polite"></p>
+              </div>
+
+              <div id="image-results" class="results-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- VIDEO ---------- -->
+        <section id="mode-video" class="mode-panel" data-panel="video" hidden>
+          <div class="studio-shell">
+            <aside class="studio-rail">
+              <h3 class="rail-title">Video modelleri</h3>
+              <div id="video-model-list" class="pick-list"></div>
+              <button id="video-add-custom" class="btn-ghost btn-block btn-sm">
+                <svg class="icon icon-sm"><use href="#i-plus"/></svg> Özel model ekle
+              </button>
+            </aside>
+
+            <div class="studio-main">
+              <div class="studio-form">
+                <div class="seg-toggle" id="video-input-mode">
+                  <button type="button" class="seg-btn is-active" data-value="text">Metinden video</button>
+                  <button type="button" class="seg-btn" data-value="image">Görselden video</button>
+                </div>
+
+                <div id="video-text-fields">
+                  <label class="field-label">İstem (prompt)</label>
+                  <textarea id="video-prompt" rows="3" placeholder="Örn: Sahilde kırılan dalgaların ağır çekim görüntüsü, altın saat ışığı"></textarea>
+                </div>
+
+                <div id="video-image-fields" hidden>
+                  <label class="field-label">Başlangıç görseli</label>
+                  <div class="dropzone" id="video-dropzone">
+                    <svg class="icon icon-lg"><use href="#i-upload"/></svg>
+                    <p>Görseli sürükle bırak ya da seç</p>
+                    <input id="video-image-input" type="file" accept="image/*" hidden>
+                  </div>
+                  <div id="video-image-preview" class="image-preview" hidden></div>
+                </div>
+
+                <div class="param-grid">
+                  <div class="param-row">
+                    <label>CFG ölçeği <output id="video-cfg-out">2.5</output></label>
+                    <input id="video-cfg" type="range" min="0" max="9" step="0.1" value="2.5">
+                  </div>
+                  <div class="param-row param-row-inline">
+                    <label>Tohum (seed)</label>
+                    <input id="video-seed" type="number" value="0" min="0">
+                    <button type="button" id="video-seed-random" class="icon-btn" title="Rastgele tohum" aria-label="Rastgele tohum">
+                      <svg class="icon icon-sm"><use href="#i-dice"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <details class="raw-override">
+                  <summary>Gelişmiş: ham istek gövdesi</summary>
+                  <p class="fine-print">Video modelleri arasında alan isimleri değişebilir; gerekirse burada geçersiz kıl.</p>
+                  <textarea id="video-raw-json" rows="5" placeholder='{"cfg_scale": 2.5, "seed": 0}' spellcheck="false"></textarea>
+                </details>
+
+                <button id="video-generate" class="btn-primary btn-block">
+                  <svg class="icon"><use href="#i-video"/></svg> Video üret
+                </button>
+                <div id="video-progress" class="progress-track" hidden>
+                  <div class="progress-fill" id="video-progress-fill"></div>
+                </div>
+                <p id="video-status" class="gate-status" role="status" aria-live="polite"></p>
+              </div>
+
+              <div id="video-results" class="results-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- AGENT ---------- -->
+        <section id="mode-agent" class="mode-panel" data-panel="agent" hidden>
+          <div class="agent-shell">
+            <aside class="studio-rail">
+              <h3 class="rail-title">Ajan yapılandırması</h3>
+
+              <label class="field-label">Model <span class="muted">(araç çağırma destekli)</span></label>
+              <button id="agent-model-chip" class="model-chip model-chip-block" type="button">
+                <span class="dot dot-agent"></span>
+                <span id="agent-model-label">model seç</span>
+                <svg class="icon icon-sm"><use href="#i-chevron"/></svg>
+              </button>
+
+              <label class="field-label">Araçlar</label>
+              <div class="tool-toggles">
+                <label class="tool-toggle"><input type="checkbox" id="tool-calc" checked><span>Hesap makinesi</span></label>
+                <label class="tool-toggle"><input type="checkbox" id="tool-clock" checked><span>Saat / tarih</span></label>
+                <label class="tool-toggle"><input type="checkbox" id="tool-image" checked><span>Görsel üretici</span></label>
+                <label class="tool-toggle"><input type="checkbox" id="tool-notes" checked><span>Not defteri</span></label>
+              </div>
+
+              <label class="field-label">Maks. adım <output id="agent-steps-out">6</output></label>
+              <input id="agent-steps" type="range" min="1" max="12" step="1" value="6">
+
+              <p class="fine-print">Ajan tamamen tarayıcında çalışır; canlı web'de gezinemez veya rastgele kod çalıştıramaz. Yalnızca yukarıdaki araçları kullanabilir.</p>
+            </aside>
+
+            <div class="studio-main">
+              <form id="agent-form" class="agent-goal-row">
+                <textarea id="agent-goal" rows="2" placeholder="Ajanın ulaşmasını istediğin hedefi yaz… Örn: 128 ile 37'nin çarpımını bul ve bunu tema alan bir görsel üret."></textarea>
+                <button type="submit" id="agent-run" class="btn-primary">
+                  <svg class="icon"><use href="#i-agent"/></svg> Çalıştır
+                </button>
+                <button type="button" id="agent-stop" class="btn-secondary" hidden>
+                  <svg class="icon"><use href="#i-stop"/></svg> Durdur
+                </button>
+              </form>
+              <div id="agent-timeline" class="agent-timeline">
+                <div class="empty-state" id="agent-empty">
+                  <svg class="icon icon-lg"><use href="#i-agent"/></svg>
+                  <p>Bir hedef yaz ve ajanın düşünce–eylem–gözlem döngüsünü izle.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </section>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root" class="toast-root" aria-live="polite"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
